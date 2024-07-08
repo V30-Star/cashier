@@ -120,95 +120,57 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
+            const checkoutButton = document.getElementById('checkoutButton');
+            const checkoutItemsTableBody = document.querySelector('#checkoutItemsTable tbody');
             const confirmCheckoutBtn = document.getElementById('confirmCheckoutBtn');
             const checkoutForm = document.getElementById('checkoutForm');
-            const checkoutButton = document.getElementById('checkoutButton');
             const keranjangTable = document.getElementById('keranjangTable');
-            const checkoutItemsTable = document.getElementById('checkoutItemsTable').querySelector('tbody');
-
-
-            // Set the purchase date to today's date
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const dd = String(today.getDate()).padStart(2, '0');
-            const formattedToday = `${yyyy}-${mm}-${dd}`;
-            purchaseDate.value = formattedToday;
 
             checkoutButton.addEventListener('click', () => {
-                const hasItems = keranjangTable.querySelector('tbody').childElementCount > 0;
-                if (hasItems) {
-                    checkoutItemsTable.innerHTML = ''; // Clear previous data
-                    const rows = keranjangTable.querySelector('tbody').rows;
-                    for (let i = 0; i < rows.length; i++) {
-                        const cells = rows[i].cells;
-                        const newRow = checkoutItemsTable.insertRow();
-                        for (let j = 0; j < 5; j++) {
+                const keranjangRows = keranjangTable.querySelectorAll('tbody tr');
+                if (keranjangRows.length > 0) {
+                    checkoutItemsTableBody.innerHTML = ''; // Clear previous items
+                    keranjangRows.forEach(row => {
+                        const cells = row.cells;
+                        const newRow = checkoutItemsTableBody.insertRow();
+                        for (let i = 0; i < cells.length - 1; i++) {
                             const newCell = newRow.insertCell();
-                            newCell.textContent = cells[j].textContent;
+                            newCell.textContent = cells[i].textContent;
                         }
-                    }
+                    });
                     const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
                     checkoutModal.show();
                 } else {
-                    alert('Keranjang kosong. Tidak ada barang untuk di-checkout.');
+                    const errorMessage = document.createElement('div');
+                    errorMessage.classList.add('alert', 'alert-danger', 'mt-3');
+                    errorMessage.textContent = 'Keranjang kosong. Tidak ada barang untuk di-checkout.';
+                    const tableContainer = document.querySelector('.table-container');
+                    tableContainer.insertBefore(errorMessage, checkoutButton.nextSibling);
                 }
             });
 
             confirmCheckoutBtn.addEventListener('click', () => {
-                // Validate form before submitting
-                if (checkoutForm.checkValidity()) {
+                const keranjangRows = keranjangTable.querySelectorAll('tbody tr');
+                if (keranjangRows.length === 0) {
+                    const errorNoItems = document.createElement('div');
+                    errorNoItems.classList.add('alert', 'alert-danger', 'mt-3');
+                    errorNoItems.textContent = 'Tidak ada barang yang di-checkout.';
+                    const modalBody = document.querySelector('.modal-body');
+                    modalBody.insertBefore(errorNoItems, checkoutForm);
+                } else if (checkoutForm.checkValidity()) {
                     checkoutForm.submit();
                 } else {
                     alert('Nama Pembeli dan Tanggal Pembelian harus diisi.');
                 }
             });
-            $(document).ready(function() {
-                $('#keranjangTable').DataTable({
-                    dom: 'Bfrtip',
-                    buttons: [
-                        'copy',
-                        'excel',
-                        {
-                            extend: 'pdfHtml5',
-                            customize: function(doc) {
-                                // Add watermark
-                                var watermarkText = 'Confidential';
-                                doc.watermark = {
-                                    text: watermarkText,
-                                    color: 'blue',
-                                    opacity: 0.1,
-                                    bold: true,
-                                    italics: false
-                                };
 
-                                // Alternatively, you can use background
-                                doc.content.push({
-                                    text: watermarkText,
-                                    fontSize: 50,
-                                    color: 'blue',
-                                    opacity: 0.1,
-                                    bold: true,
-                                    italics: false,
-                                    angle: -45,
-                                    absolutePosition: {
-                                        x: 200,
-                                        y: 400
-                                    }
-                                });
-                            }
-                        },
-                        {
-                            extend: 'print',
-                            customize: function(win) {
-                                $(win.document.body).append(
-                                    '<div style="position:fixed; top:50%; left:50%; opacity:0.1; font-size:100px; transform:translate(-50%, -50%) rotate(-45deg); z-index:9999; pointer-events:none;">Kembar Jaya Motor</div>'
-                                );
-                            }
-                        }
-                    ]
-                });
-            });
+            // Set default purchase date to today
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const formattedToday = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('purchaseDate').value = formattedToday;
         });
     </script>
 @endsection

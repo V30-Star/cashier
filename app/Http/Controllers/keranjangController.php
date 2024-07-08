@@ -63,14 +63,15 @@ class keranjangController extends Controller
     public function checkout(Request $request)
     {
         $keranjang = session()->get('keranjang', []);
-
+    
+        // Validasi jika keranjang kosong
         if (empty($keranjang)) {
             return redirect()->route('keranjang')->with('error', 'Keranjang kosong. Tidak ada barang untuk di-checkout.');
         }
-
+    
         foreach ($keranjang as $item) {
             $barang = BuatBarang::where('kode_barang', $item['kode_barang'])->first();
-
+    
             if ($barang) {
                 if ($barang->stok_barang >= $item['jumlah_barang']) {
                     $barang->stok_barang -= $item['jumlah_barang'];
@@ -80,12 +81,13 @@ class keranjangController extends Controller
                 }
             }
         }
-
+    
         // Clear the cart after successful checkout
         session()->forget('keranjang');
-
+    
         return redirect()->route('keranjang')->with('success', 'Checkout berhasil. Stok barang diperbarui.');
     }
+    
 
     public function edit($kode_barang)
 {

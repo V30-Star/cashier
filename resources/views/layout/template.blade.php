@@ -12,13 +12,6 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.1/css/buttons.dataTables.min.css">
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.print.min.js"></script>
 </head>
 
 <body>
@@ -61,56 +54,53 @@
     <div class="container">
         @yield('content')
     </div>
-
+    <!-- Memuat jQuery terlebih dahulu -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Memuat Popper.js untuk Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
+
+    <!-- Memuat Bootstrap CSS dan JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous">
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+
+    <!-- Memuat DataTables dan ekstensi -->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.7.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.print.min.js"></script>
 
+      <!-- Your Custom JavaScript -->
     <script>
         $(document).ready(function() {
             $('#tableList').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
-                    'copy',
-                    'excel',
+                    'copy', 'excel',
                     {
                         extend: 'pdfHtml5',
                         customize: function(doc) {
                             // Add watermark
                             var watermarkText = 'Confidential';
-                            doc.watermark = {
-                                text: watermarkText,
-                                color: 'blue',
-                                opacity: 0.1,
-                                bold: true,
-                                italics: false
-                            };
-
-                            // Alternatively, you can use background
-                            doc.content.push({
-                                text: watermarkText,
-                                fontSize: 50,
-                                color: 'blue',
-                                opacity: 0.1,
-                                bold: true,
-                                italics: false,
-                                angle: -45,
-                                absolutePosition: {
-                                    x: 200,
-                                    y: 400
+                            doc.content.forEach(function(item) {
+                                if (item.text && item.text.indexOf('Confidential') !== -1) {
+                                    item.text = item.text.replace('Confidential', watermarkText);
                                 }
                             });
+
+                            // Alternatively, you can use background watermark
+                            doc.background = function() {
+                                doc.setFontSize(50);
+                                doc.setTextColor('blue');
+                                doc.setOpacity(0.1);
+                                doc.text(watermarkText, 200, 400, {
+                                    angle: -45
+                                });
+                            };
                         }
                     },
                     {
