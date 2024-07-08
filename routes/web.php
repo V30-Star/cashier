@@ -5,6 +5,8 @@ use App\Http\Controllers\LihatBarangController;
 use App\Http\Controllers\authController;
 use App\Http\Controllers\buatBarangController;
 use App\Http\Controllers\keranjangController;
+use App\Http\Controllers\historyController;
+use App\Http\Controllers\CheckoutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +36,7 @@ Route::delete('/main/lihatBarang/{kode_barang}', [LihatBarangController::class, 
 Route::get('/main/editBarang/{kode_barang}', [LihatBarangController::class, 'edit'])->name('editBarang');
 Route::put('/main/updateBarang/{kode_barang}', [LihatBarangController::class, 'update'])->name('updateBarang');
 
+
 Route::get('/main/buatBarang', [buatBarangController::class, 'buatBarang'])->name('buatBarang');
 Route::post('/main/buatBarang', [buatBarangController::class, 'buatBarang_action'])->name('buatBarang.action');
 
@@ -41,8 +44,14 @@ Route::get('/main/keranjang', [keranjangController::class, 'keranjang'])->name('
 Route::post('/main/keranjang', [KeranjangController::class, 'addToKeranjang'])->name('addToKeranjang');
 Route::post('main/keranjang/checkout', [KeranjangController::class, 'checkout'])->name('checkout');
 Route::delete('/main/keranjang/{kode_barang}', [KeranjangController::class, 'removeFromKeranjang'])->name('removeFromKeranjang');
+Route::delete('/main/hapusSemuaBarang', [keranjangController::class, 'hapusSemuaBarang'])->name('hapusSemuaBarang');
 Route::get('/main/editKeranjang/{kode_barang}', [keranjangController::class, 'edit'])->name('editBarang');
 Route::put('/main/updateKeranjang/{kode_barang}', [keranjangController::class, 'update'])->name('updateKeranjang');
+
+Route::post('/checkout', [CheckoutController::class, 'processCheckout'])->name('checkout');
+Route::get('/history', [historyController::class, 'index'])->name('history');
+Route::get('/history/{id}', [historyController::class, 'show'])->name('history.show');
+Route::delete('/history/{id}', [CheckoutController::class, 'delete'])->name('history.delete');
 
 
 

@@ -4,6 +4,7 @@
     <div class="row justify-content-center mt-5" style="overflow-x: auto;">
         <div class="col-md table-container">
             <table class="table table-striped table-bordered nowrap" id="tableList" style="width:100%">
+
                 <thead>
                     <tr>
                         <th>Kode Barang</th>
@@ -129,6 +130,7 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                stokBarang -= jumlahBarang;
                                 // Redirect ke halaman keranjang
                                 window.location.href = "{{ route('keranjang') }}";
                             }

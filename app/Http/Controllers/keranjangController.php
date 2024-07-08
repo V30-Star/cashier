@@ -14,16 +14,36 @@ class keranjangController extends Controller
     }
 
     public function addToKeranjang(Request $request)
-    {
-        $keranjang = session()->get('keranjang', []);
+{
+    $keranjang = session()->get('keranjang', []);
 
-        $total_harga = $request->harga_barang * $request->jumlah_barang;
+    // Assuming you have BuatBarang model to fetch nama_barang
+    $barang = BuatBarang::where('kode_barang', $request->kode_barang)->first();
 
-        $keranjang[] = array_merge($request->all(), ['total_harga' => $total_harga]);
-        session()->put('keranjang', $keranjang);
-
-        return response()->json(['success' => true]);
+    if (!$barang) {
+        return response()->json(['error' => 'Barang tidak ditemukan'], 404);
     }
+
+    $total_harga = $request->harga_barang * $request->jumlah_barang;
+
+    // Add all necessary data to the cart item
+    $keranjang[] = [
+        'kode_barang' => $request->kode_barang,
+        'nama_barang' => $barang->nama_barang, // Fetch the name from database
+        'harga_barang' => $request->harga_barang,
+        'jumlah_barang' => $request->jumlah_barang,
+        'total_harga' => $total_harga,
+    ];
+
+    session()->put('keranjang', $keranjang);
+
+      // Update stock in database
+      $barang->stok_barang -= $request->jumlah_barang;
+      $barang->save();
+
+    return response()->json(['success' => true]);
+}
+
     public function removeFromKeranjang($kode_barang)
     {
         $keranjang = session()->get('keranjang', []);
@@ -117,4 +137,18 @@ public function update(Request $request, $kode_barang)
     // Redirect ke halaman keranjang dengan pesan sukses
     return redirect()->route('keranjang')->with('success', 'Barang dalam keranjang berhasil diperbarui');
 }
+public function hapusSemuaBarang()
+{
+     // Lakukan penghapusan semua data barang
+     $keranjang = session()->get('keranjang', []);
+
+     if (empty($keranjang)) {
+         return redirect()->back()->with('error', 'Tidak ada barang untuk dihapus.');
+     }  
+    // Lakukan penghapusan semua data barang
+    session()->forget('keranjang'); // Misalnya menggunakan session untuk keranjang
+
+    return redirect()->back()->with('success', 'Semua barang dalam keranjang berhasil dihapus.');
+}
+
 }
